@@ -31,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.gora.store.DataStore;
 import org.apache.gora.store.DataStoreFactory;
+import org.apache.gora.util.GoraException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.LongWritable;
@@ -181,8 +182,6 @@ public class Generator extends Configured implements Tool {
       
       DataStore<Long,CINode> store = DataStoreFactory.getDataStore(Long.class, CINode.class, new Configuration());
       
-      store.createSchema();
-      
       Random rand = new Random();
       
       long[] first = null;
@@ -272,9 +271,16 @@ public class Generator extends Configured implements Tool {
     return run(numMappers, numNodes);
   }
 
+  protected void createSchema() throws IOException {
+    DataStore<Long,CINode> store = DataStoreFactory.getDataStore(Long.class, CINode.class, new Configuration());
+    store.createSchema();
+  }
+
   public int run(int numMappers, long numNodes) throws Exception { 
     LOG.info("Running Generator with numMappers=" + numMappers +", numNodes=" + numNodes);
     
+    createSchema();
+
     Job job = new Job(getConf());
     
     job.setJobName("Link Generator");
